@@ -10,40 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Darwin build environment
-        shell: bash
+      - name: Set up dependencies
         run: |
-          chmod +x ${GITHUB_WORKSPACE}/tools/dbuild/setup.sh
-          chmod +x ${GITHUB_WORKSPACE}/tools/dbuild/rc
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang llvm make cmake xorriso grub-pc-bin
 
-          source ${GITHUB_WORKSPACE}/tools/dbuild/setup.sh
-          export RC_BUILD_JOBS=$(nproc)
-          export RC_SYSTEM_ROOT=${GITHUB_WORKSPACE}/output
-          export RC_DARWIN_ROOT=${GITHUB_WORKSPACE}
-          echo "RC_SYSTEM_ROOT: $RC_SYSTEM_ROOT"
-          echo "RC_DARWIN_ROOT: $RC_DARWIN_ROOT"
-
-      - name: Build host toolchain
-        shell: bash
+      - name: Set up macOS SDK (Optional, if needed)
         run: |
-          ${GITHUB_WORKSPACE}/tools/dbuild/rc --make-host-toolchain
+          curl -LO https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX11.3.sdk.tar.xz
+          sudo tar -xvf MacOSX11.3.sdk.tar.xz -C /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
 
-      - name: Build Darwin system
-        shell: bash
+      - name: Configure the build
         run: |
-          ${GITHUB_WORKSPACE}/tools/dbuild/rc build
+          mkdir build
+          cd build
+          ../configure --enable-iso
 
-      - name: Upload built system
+      - name: Build the system
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: Create ISO image
+        run: |
+          mkdir -p iso/boot/grub
+          cp path/to/kernel iso/boot/
+          cp path/to/initrd iso/boot/
+          cp path/to/grub.cfg iso/boot/grub/
+          grub-mkrescue -o puredarwin.iso iso/
+
+      - name: Upload ISO as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: PureDarwin-system
-          path: $RC_SYSTEM_ROOT
-
-      - name: Clean up build artifacts
-        if: always()
-        shell: bash
-        run: |
-          ${GITHUB_WORKSPACE}/tools/dbuild/rc clean all
+          name: puredarwin-iso
+          path: puredarwin.iso
