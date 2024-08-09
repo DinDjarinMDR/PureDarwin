@@ -26,12 +26,12 @@ jobs:
       - name: Build host toolchain
         shell: bash
         run: |
-          ${GITHUB_WORKSPACE}/build/rc --make-host-toolchain
+          ${GITHUB_WORKSPACE}/tools/dbuild/rc --make-host-toolchain
 
       - name: Build Darwin system
         shell: bash
         run: |
-          ${GITHUB_WORKSPACE}/build/rc build
+          ${GITHUB_WORKSPACE}/tools/dbuild/rc build
 
       - name: Upload built system
         uses: actions/upload-artifact@v3
@@ -43,4 +43,4 @@ jobs:
         if: always()
         shell: bash
         run: |
-          ${GITHUB_WORKSPACE}/build/rc clean all
+          ${GITHUB_WORKSPACE}/tools/dbuild/rc clean all
