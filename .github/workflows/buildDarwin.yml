@@ -16,7 +16,7 @@ jobs:
       - name: Set up Darwin build environment
         shell: bash
         run: |
-          source build/setup.sh
+          source ${GITHUB_WORKSPACE}/build/setup.sh
           echo "RC_HOST_ARCH: $RC_HOST_ARCH"
           echo "RC_HOST_TYPE: $RC_HOST_TYPE"
           echo "RC_DARWIN_ROOT: $RC_DARWIN_ROOT"
@@ -25,12 +25,12 @@ jobs:
       - name: Build host toolchain
         shell: bash
         run: |
-          build/rc --make-host-toolchain
+          ${GITHUB_WORKSPACE}/build/rc --make-host-toolchain
 
       - name: Build Darwin system
         shell: bash
         run: |
-          build/rc build
+          ${GITHUB_WORKSPACE}/build/rc build
 
       - name: Upload built system
         uses: actions/upload-artifact@v3
@@ -42,4 +42,4 @@ jobs:
         if: always()
         shell: bash
         run: |
-          build/rc clean all
+          ${GITHUB_WORKSPACE}/build/rc clean all
