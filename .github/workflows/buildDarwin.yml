@@ -16,11 +16,12 @@ jobs:
       - name: Set up Darwin build environment
         shell: bash
         run: |
-          source ${GITHUB_WORKSPACE}/build/setup.sh
-          echo "RC_HOST_ARCH: $RC_HOST_ARCH"
-          echo "RC_HOST_TYPE: $RC_HOST_TYPE"
-          echo "RC_DARWIN_ROOT: $RC_DARWIN_ROOT"
+          source ${GITHUB_WORKSPACE}/tools/dbuild/setup.sh
+          export RC_BUILD_JOBS=$(nproc)
+          export RC_SYSTEM_ROOT=${GITHUB_WORKSPACE}/output
+          export RC_DARWIN_ROOT=${GITHUB_WORKSPACE}
           echo "RC_SYSTEM_ROOT: $RC_SYSTEM_ROOT"
+          echo "RC_DARWIN_ROOT: $RC_DARWIN_ROOT"
 
       - name: Build host toolchain
         shell: bash
