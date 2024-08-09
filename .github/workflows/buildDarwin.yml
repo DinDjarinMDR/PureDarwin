@@ -16,6 +16,9 @@ jobs:
       - name: Set up Darwin build environment
         shell: bash
         run: |
+          chmod +x ${GITHUB_WORKSPACE}/tools/dbuild/setup.sh
+          chmod +x ${GITHUB_WORKSPACE}/tools/dbuild/rc
+
           source ${GITHUB_WORKSPACE}/tools/dbuild/setup.sh
           export RC_BUILD_JOBS=$(nproc)
           export RC_SYSTEM_ROOT=${GITHUB_WORKSPACE}/output
