@@ -7,43 +7,17 @@ on:
   
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up dependencies
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Install Packages
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang llvm make cmake xorriso grub-pc-bin
-
-      - name: Set up macOS SDK (Optional, if needed)
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          brew install openssl ninja
+      - name: Build
         run: |
-          curl -LO https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX11.3.sdk.tar.xz
-          sudo tar -xvf MacOSX11.3.sdk.tar.xz -C /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
-
-      - name: Configure the build
-        run: |
-          mkdir build
-          cd build
-          ../configure --enable-iso
-
-      - name: Build the system
-        run: |
-          cd build
-          make -j$(nproc)
-
-      - name: Create ISO image
-        run: |
-          mkdir -p iso/boot/grub
-          cp path/to/kernel iso/boot/
-          cp path/to/initrd iso/boot/
-          cp path/to/grub.cfg iso/boot/grub/
-          grub-mkrescue -o puredarwin.iso iso/
-
-      - name: Upload ISO as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: puredarwin-iso
-          path: puredarwin.iso
+          mkdir build && cd build
+          cmake -G Ninja -DKERNEL_BUILD_XNU=1 -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
+          ninja
