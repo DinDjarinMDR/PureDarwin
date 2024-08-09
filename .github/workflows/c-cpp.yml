@@ -1,0 +1,45 @@
+name: Build Darwin
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Darwin build environment
+        shell: bash
+        run: |
+          source tools/dbuild/setup.sh
+          echo "RC_HOST_ARCH: $RC_HOST_ARCH"
+          echo "RC_HOST_TYPE: $RC_HOST_TYPE"
+          echo "RC_DARWIN_ROOT: $RC_DARWIN_ROOT"
+          echo "RC_SYSTEM_ROOT: $RC_SYSTEM_ROOT"
+
+      - name: Build host toolchain
+        shell: bash
+        run: |
+          rc --make-host-toolchain
+
+      - name: Build Darwin system
+        shell: bash
+        run: |
+          rc build
+
+      - name: Upload built system
+        uses: actions/upload-artifact@v3
+        with:
+          name: PureDarwin-system
+          path: $RC_SYSTEM_ROOT
+
+      - name: Clean up build artifacts
+        if: always()
+        shell: bash
+        run: |
+          rc clean all
